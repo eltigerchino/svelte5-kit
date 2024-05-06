@@ -47,20 +47,20 @@
 	.corner {
 		width: 3em;
 		height: 3em;
-	}
 
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
+		a {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: 100%;
+		}
 
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
+			img {
+			width: 2em;
+			height: 2em;
+			object-fit: contain;
+		}
 	}
 
 	nav {
@@ -95,18 +95,18 @@
 	li {
 		position: relative;
 		height: 100%;
-	}
 
-	li[aria-current='page']::before {
-		--size: 6px;
-		content: '';
-		width: 0;
-		height: 0;
-		position: absolute;
-		top: 0;
-		left: calc(50% - var(--size));
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid var(--color-theme-1);
+		&[aria-current='page']::before {
+			--size: 6px;
+			content: '';
+			width: 0;
+			height: 0;
+			position: absolute;
+			top: 0;
+			left: calc(50% - var(--size));
+			border: var(--size) solid transparent;
+			border-top: var(--size) solid var(--color-theme-1);
+		}
 	}
 
 	nav a {
