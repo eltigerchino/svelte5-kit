@@ -1,24 +1,13 @@
 <script lang="ts">
 	import { spring } from 'svelte/motion';
+	import { run } from 'svelte/legacy';
 
-	function createCounter (initial = 0) {
-		let _count = $state(initial);
-		const displayed_count = spring<number>(initial);
+	let count = $state(0);
 
-		return {
-			get value () {
-				return _count;
-			},
-			set value (val) {
-				_count = val;
-				displayed_count.set(val);
-			},
-			displayed_count
-		}
-	}
-
-	let count = createCounter();
-	const { displayed_count } = count;
+	let displayed_count = spring<number>();
+	run(() => {
+		displayed_count.set(count);
+	});
 
 	let offset = $derived(modulo($displayed_count, 1));
 
@@ -29,7 +18,7 @@
 </script>
 
 <div class="counter">
-	<button onclick={() => (count.value -= 1)} aria-label="Decrease the counter by one">
+	<button onclick={() => (count -= 1)} aria-label="Decrease the counter by one">
 		<svg aria-hidden="true" viewBox="0 0 1 1">
 			<path d="M0,0.5 L1,0.5" />
 		</svg>
@@ -42,7 +31,7 @@
 		</div>
 	</div>
 
-	<button onclick={() => (count.value += 1)} aria-label="Increase the counter by one">
+	<button onclick={() => (count += 1)} aria-label="Increase the counter by one">
 		<svg aria-hidden="true" viewBox="0 0 1 1">
 			<path d="M0,0.5 L1,0.5 M0.5,0 L0.5,1" />
 		</svg>
