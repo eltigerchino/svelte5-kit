@@ -3,22 +3,24 @@
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
 	import { reduced_motion } from './reduced-motion';
+	import { run } from 'svelte/legacy';
 
-	export let data: PageData;
-
-	export let form: ActionData;
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	/** Whether or not the user has won */
-	$: won = data.answers.at(-1) === 'xxxxx';
+	let won = $derived(data.answers.at(-1) === 'xxxxx');
 
 	/** The index of the current guess */
-	$: i = won ? -1 : data.answers.length;
+	let i = $derived(won ? -1 : data.answers.length);
 
 	/** The current guess */
-	$: currentGuess = data.guesses[i] || '';
+	let currentGuess = $state('');
+	run(() => {
+		currentGuess = data.guesses[i] || '';
+	})
 
 	/** Whether the current guess can be submitted */
-	$: submittable = currentGuess.length === 5;
+	let submittable = $derived(currentGuess.length === 5);
 
 	/**
 	 * A map of classnames for all letters that have been guessed,
@@ -32,7 +34,7 @@
 	 */
 	let description: Record<string, string>;
 
-	$: {
+	run(() => {
 		classnames = {};
 		description = {};
 
@@ -51,16 +53,14 @@
 				}
 			}
 		});
-	}
+	})
 
 	/**
 	 * Modify the game state without making a trip to the server,
 	 * if client-side JavaScript is enabled
 	 */
 	function update(event: MouseEvent) {
-		const key = (event.target as HTMLButtonElement).getAttribute(
-			'data-key'
-		);
+		const key = (event.target as HTMLButtonElement).getAttribute('data-key');
 
 		if (key === 'backspace') {
 			currentGuess = currentGuess.slice(0, -1);
