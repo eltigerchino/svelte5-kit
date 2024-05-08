@@ -28,21 +28,18 @@
 	/** Whether the current guess can be submitted */
 	let submittable = $derived(currentGuess.value.length === 5);
 
-	/**
-	 * A map of classnames for all letters that have been guessed,
-	 * used for styling the keyboard
-	 */
-	let classnames: Record<string, 'exact' | 'close' | 'missing'>;
+	let { classnames, description } = $derived.by(() => {
+		/**
+		 * A map of classnames for all letters that have been guessed,
+		 * used for styling the keyboard
+		 */
+		let classnames: Record<string, 'exact' | 'close' | 'missing'> = {}
 
-	/**
-	 * A map of descriptions for all letters that have been guessed,
-	 * used for adding text for assistive technology (e.g. screen readers)
-	 */
-	let description: Record<string, string>;
-
-	run(() => {
-		classnames = {};
-		description = {};
+		/**
+		 * A map of descriptions for all letters that have been guessed,
+		 * used for adding text for assistive technology (e.g. screen readers)
+		 */
+		let description: Record<string, string> = {};
 
 		data.answers.forEach((answer, i) => {
 			const guess = data.guesses[i];
@@ -59,6 +56,8 @@
 				}
 			}
 		});
+
+		return { classnames, description }
 	})
 
 	/**
@@ -66,6 +65,8 @@
 	 * if client-side JavaScript is enabled
 	 */
 	function update(event: MouseEvent) {
+		event.preventDefault();
+
 		const key = (event.target as HTMLButtonElement).getAttribute('data-key');
 
 		if (key === 'backspace') {
@@ -158,7 +159,7 @@
 				<button data-key="enter" class:selected={submittable} disabled={!submittable}>enter</button>
 
 				<button
-					on:click|preventDefault={update}
+					onclick={update}
 					data-key="backspace"
 					formaction="?/update"
 					name="key"
@@ -171,7 +172,7 @@
 					<div class="row">
 						{#each row as letter}
 							<button
-								on:click|preventDefault={update}
+								onclick={update}
 								data-key={letter}
 								class={classnames[letter]}
 								disabled={submittable}
