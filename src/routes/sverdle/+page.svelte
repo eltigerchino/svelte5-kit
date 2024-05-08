@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
 	import { reduced_motion } from './reduced-motion';
+	import { LETTERS } from './game';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -16,24 +17,24 @@
 	let currentGuess = $derived.by(() => {
 		let guess = $state(data.guesses[i] || '');
 		return {
-			get value () {
+			get value() {
 				return guess;
 			},
-			set value (val) {
+			set value(val) {
 				guess = val;
 			}
-		}
-	})
+		};
+	});
 
 	/** Whether the current guess can be submitted */
-	let submittable = $derived(currentGuess.value.length === 5);
+	let submittable = $derived(currentGuess.value.length === LETTERS);
 
 	let { classnames, description } = $derived.by(() => {
 		/**
 		 * A map of classnames for all letters that have been guessed,
 		 * used for styling the keyboard
 		 */
-		let classnames: Record<string, 'exact' | 'close' | 'missing'> = {}
+		let classnames: Record<string, 'exact' | 'close' | 'missing'> = {};
 
 		/**
 		 * A map of descriptions for all letters that have been guessed,
@@ -44,7 +45,7 @@
 		data.answers.forEach((answer, i) => {
 			const guess = data.guesses[i];
 
-			for (let i = 0; i < 5; i += 1) {
+			for (let i = 0; i < LETTERS; i += 1) {
 				const letter = guess[i];
 
 				if (answer[i] === 'x') {
@@ -57,8 +58,8 @@
 			}
 		});
 
-		return { classnames, description }
-	})
+		return { classnames, description };
+	});
 
 	/**
 	 * Modify the game state without making a trip to the server,
@@ -72,7 +73,7 @@
 		if (key === 'backspace') {
 			currentGuess.value = currentGuess.value.slice(0, -1);
 			if (form?.badGuess) form.badGuess = false;
-		} else if (currentGuess.value.length < 5) {
+		} else if (currentGuess.value.length < LETTERS) {
 			currentGuess.value += key;
 		}
 	}
@@ -92,7 +93,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={keydown} />
+<svelte:window onkeydown={keydown} />
 
 <svelte:head>
 	<title>Sverdle</title>
@@ -114,11 +115,11 @@
 	<a class="how-to-play" href="/sverdle/how-to-play">How to play</a>
 
 	<div class="grid" class:playing={!won} class:bad-guess={form?.badGuess}>
-		{#each Array.from(Array(6).keys()) as row (row)}
+		{#each Array.from(Array(LETTERS + 1).keys()) as row (row)}
 			{@const current = row === i}
 			<h2 class="visually-hidden">Row {row + 1}</h2>
 			<div class="row" class:current>
-				{#each Array.from(Array(5).keys()) as column (column)}
+				{#each Array.from(Array(LETTERS).keys()) as column (column)}
 					{@const guess = current ? currentGuess.value : data.guesses[row]}
 					{@const answer = data.answers[row]?.[column]}
 					{@const value = guess?.[column] ?? ''}
@@ -147,7 +148,7 @@
 	</div>
 
 	<div class="controls">
-		{#if won || data.answers.length >= 6}
+		{#if won || data.answers.length > LETTERS}
 			{#if !won && data.answer}
 				<p>the answer was "{data.answer}"</p>
 			{/if}
