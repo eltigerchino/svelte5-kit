@@ -3,7 +3,6 @@
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
 	import { reduced_motion } from './reduced-motion';
-	import { run } from 'svelte/legacy';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -14,13 +13,20 @@
 	let i = $derived(won ? -1 : data.answers.length);
 
 	/** The current guess */
-	let currentGuess = $state('');
-	run(() => {
-		currentGuess = data.guesses[i] || '';
+	let currentGuess = $derived.by(() => {
+		let guess = $state(data.guesses[i] || '');
+		return {
+			get value () {
+				return guess;
+			},
+			set value (val) {
+				guess = val;
+			}
+		}
 	})
 
 	/** Whether the current guess can be submitted */
-	let submittable = $derived(currentGuess.length === 5);
+	let submittable = $derived(currentGuess.value.length === 5);
 
 	/**
 	 * A map of classnames for all letters that have been guessed,
@@ -63,10 +69,10 @@
 		const key = (event.target as HTMLButtonElement).getAttribute('data-key');
 
 		if (key === 'backspace') {
-			currentGuess = currentGuess.slice(0, -1);
+			currentGuess.value = currentGuess.value.slice(0, -1);
 			if (form?.badGuess) form.badGuess = false;
-		} else if (currentGuess.length < 5) {
-			currentGuess += key;
+		} else if (currentGuess.value.length < 5) {
+			currentGuess.value += key;
 		}
 	}
 
@@ -112,7 +118,7 @@
 			<h2 class="visually-hidden">Row {row + 1}</h2>
 			<div class="row" class:current>
 				{#each Array.from(Array(5).keys()) as column (column)}
-					{@const guess = current ? currentGuess : data.guesses[row]}
+					{@const guess = current ? currentGuess.value : data.guesses[row]}
 					{@const answer = data.answers[row]?.[column]}
 					{@const value = guess?.[column] ?? ''}
 					{@const selected = current && column === guess.length}
