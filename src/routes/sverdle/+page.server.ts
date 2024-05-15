@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { Game } from './game';
+import { Game } from './game.server';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load = (({ cookies }) => {

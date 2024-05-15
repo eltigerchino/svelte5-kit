@@ -1,6 +1,5 @@
+import { LETTERS } from './constants';
 import { words, allowed } from './words.server';
-
-export const LETTERS = 5;
 
 export class Game {
 	index: number;

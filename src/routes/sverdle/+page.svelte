@@ -3,7 +3,7 @@
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
 	import { reduced_motion } from './reduced-motion';
-	import { LETTERS } from './game';
+	import { LETTERS } from './constants';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -13,18 +13,20 @@
 	/** The index of the current guess */
 	let i = $derived(won ? -1 : data.answers.length);
 
-	/** The current guess */
-	let currentGuess = $derived.by(() => {
-		let guess = $state(data.guesses[i] || '');
+	function box<T>(initial: T) {
+		let x = $state(initial);
 		return {
 			get value() {
-				return guess;
+				return x;
 			},
 			set value(val) {
-				guess = val;
+				x = val;
 			}
 		};
-	});
+	}
+
+	/** The current guess */
+	let currentGuess = $derived(box(data.guesses[i] || ''));
 
 	/** Whether the current guess can be submitted */
 	let submittable = $derived(currentGuess.value.length === LETTERS);
